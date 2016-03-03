@@ -290,11 +290,18 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
         request.identityPoolId = self.cognitoCredentialsProvider.identityPoolId;
         request.identityId = self.cognitoCredentialsProvider.identityId;
         return [[self.cognitoService registerDevice:request]continueWithSuccessBlock:^id _Nullable(AWSTask<AWSCognitoSyncRegisterDeviceResponse *> * _Nonnull task) {
-            AWSCognitoSyncRegisterDeviceResponse* response = task.result;
-            keychain[[AWSCognitoUtil deviceIdKey:_pushPlatform]] = response.deviceId;
+            id response = task.result;
+            NSString *deviceId;
+            if ([response isKindOfClass:[AWSCognitoSyncRegisterDeviceResponse class]]) {
+                deviceId = ((AWSCognitoSyncRegisterDeviceResponse *)response).deviceId;
+            } else {
+                deviceId = (NSString *)response;
+            }
+            keychain[[AWSCognitoUtil deviceIdKey:_pushPlatform]] = deviceId;
             keychain[[AWSCognitoUtil deviceIdentityKey:_pushPlatform]] = self.cognitoCredentialsProvider.identityId;
-            [self setDeviceId:response.deviceId];
-            return [AWSTask taskWithResult:response.deviceId];
+            
+            [self setDeviceId:deviceId];
+            return [AWSTask taskWithResult:deviceId];
         }];
     }] continueWithBlock:^id(AWSTask *task) {
         if(task.isCancelled){
