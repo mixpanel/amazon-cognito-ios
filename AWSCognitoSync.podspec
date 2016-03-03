@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
                      :tag => s.version}
   s.requires_arc = true
   s.library      = 'sqlite3'
-  s.dependency 'MP-AWSCore'
+  s.dependency 'MPAWSCore'
 
   s.deprecated = true
   s.deprecated_in_favor_of = 'AWSCognito'
