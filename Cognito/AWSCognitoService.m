@@ -264,6 +264,10 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     return keychain[[AWSCognitoUtil deviceIdentityKey:_pushPlatform]];
 }
 
++(NSString *) cognitoDevicePushToken {
+    return keychain[[AWSCognitoUtil devicePushTokenKey:_pushPlatform]];
+}
+
 -(AWSTask *)registerDevice:(NSData *) deviceToken {
     const unsigned char* bytes = (const unsigned char*)[deviceToken bytes];
     NSMutableString * devTokenHex = [[NSMutableString alloc] initWithCapacity:2*deviceToken.length];
@@ -281,7 +285,8 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
         
         NSString *currentDeviceId = [AWSCognito cognitoDeviceId];
         NSString *currentDeviceIdentity = [AWSCognito cognitoDeviceIdentity];
-        if(currentDeviceId && currentDeviceIdentity && [self.cognitoCredentialsProvider.identityId isEqualToString:currentDeviceIdentity]){
+        NSString *currentDevicePushToken = [AWSCognito cognitoDevicePushToken];
+        if(currentDeviceId && currentDeviceIdentity && [self.cognitoCredentialsProvider.identityId isEqualToString:currentDeviceIdentity] && [deviceToken isEqualToString:currentDevicePushToken]){
             return [AWSTask taskWithResult:currentDeviceId];
         }
         AWSCognitoSyncRegisterDeviceRequest* request = [AWSCognitoSyncRegisterDeviceRequest new];
@@ -299,6 +304,7 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
             }
             keychain[[AWSCognitoUtil deviceIdKey:_pushPlatform]] = deviceId;
             keychain[[AWSCognitoUtil deviceIdentityKey:_pushPlatform]] = self.cognitoCredentialsProvider.identityId;
+            keychain[[AWSCognitoUtil devicePushTokenKey:_pushPlatform]] = deviceToken;
             
             [self setDeviceId:deviceId];
             return [AWSTask taskWithResult:deviceId];

@@ -64,4 +64,10 @@
  * Get the device identity key for this push platform string
  */
 + (NSString *) deviceIdentityKey:(AWSCognitoSyncPlatform) pushPlatformString;
+
+/**
+ * Get the device push token key for this push platform string
+ */
++ (NSString *) devicePushTokenKey:(AWSCognitoSyncPlatform) pushPlatformString;
+
 @end
